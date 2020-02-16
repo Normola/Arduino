@@ -34,6 +34,11 @@ const char D_INTRO_1[] PROGMEM = "ESP8266 Deauther";
 const char D_INTRO_2[] PROGMEM = "by @Spacehuhn";
 const char D_INTRO_3[] PROGMEM = "";
 
+const char PD_INTRO_0[] PROGMEM = "";
+const char PD_INTRO_1[] PROGMEM = "GeekWatch";
+const char PD_INTRO_2[] PROGMEM = "by @Normola";
+const char PD_INTRO_3[] PROGMEM = "";
+
 // fallback for the buttons
 #ifndef BUTTON_UP
   #define BUTTON_UP 255
@@ -66,7 +71,7 @@ struct Menu {
 
 class DisplayUI {
     public:
-        enum DISPLAY_MODE { OFF = 0, BUTTON_TEST = 1, MENU = 2, LOADSCAN = 3, PACKETMONITOR = 4, INTRO = 5, CLOCK = 6 };
+        enum DISPLAY_MODE { OFF = 0, BUTTON_TEST = 1, MENU = 2, LOADSCAN = 3, PACKETMONITOR = 4, INTRO = 5, CLOCK = 6, PLAUSIBLE_DENIABILITY_INTRO = 7 };
 
         uint8_t mode      = DISPLAY_MODE::MENU;
         bool highlightLED = false;
@@ -157,6 +162,7 @@ class DisplayUI {
         void drawLoadingScan();
         void drawPacketMonitor();
         void drawIntro();
+        void drawPlausibleDeniabilityIntro();
         void clearMenu(Menu* menu);
 
         // menu functions

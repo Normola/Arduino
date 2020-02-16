@@ -6,10 +6,10 @@
  */
 
 extern "C" {
-  // Please follow this tutorial:
-  // https://github.com/spacehuhn/esp8266_deauther/wiki/Installation#compiling-using-arduino-ide
-  // And be sure to have the right board selected
-  #include "user_interface.h"
+// Please follow this tutorial:
+// https://github.com/spacehuhn/esp8266_deauther/wiki/Installation#compiling-using-arduino-ide
+// And be sure to have the right board selected
+#include "user_interface.h"
 }
 #include <EEPROM.h>
 
@@ -39,23 +39,24 @@ extern "C" {
 // Run-Time Variables //
 LED led;
 Settings settings;
-Names    names;
-SSIDs    ssids;
+Names names;
+SSIDs ssids;
 Accesspoints accesspoints;
-Stations     stations;
-Scan   scan;
+Stations stations;
+Scan scan;
 Attack attack;
-CLI    cli;
+CLI cli;
 DisplayUI displayUI;
 
 #include "wifi.h"
 
 uint32_t autosaveTime = 0;
-uint32_t currentTime  = 0;
+uint32_t currentTime = 0;
 
 bool booted = false;
 
-void setup() {
+void setup()
+{
     // for random generator
     randomSeed(os_random());
 
@@ -63,6 +64,20 @@ void setup() {
     Serial.begin(115200);
     Serial.println();
 
+    LoadSettings();
+
+    if (PLAUSIBLE_DENIABILITY_MODE)
+    {
+        SetupWatch();
+    }
+    else
+    {
+        SetupDeauther();
+    }
+}
+
+void LoadSettings()
+{
     // start SPIFFS
     prnt(SETUP_MOUNT_SPIFFS);
     prntln(SPIFFS.begin() ? SETUP_OK : SETUP_ERROR);
@@ -73,11 +88,14 @@ void setup() {
     // auto repair when in boot-loop
     uint8_t bootCounter = EEPROM.read(0);
 
-    if (bootCounter >= 3) {
+    if (bootCounter >= 3)
+    {
         prnt(SETUP_FORMAT_SPIFFS);
         SPIFFS.format();
         prntln(SETUP_OK);
-    } else {
+    }
+    else
+    {
         EEPROM.write(0, bootCounter + 1); // add 1 to the boot counter
         EEPROM.commit();
     }
@@ -87,14 +105,28 @@ void setup() {
 
     // load settings
     settings.load();
+}
 
+void SetupWatch()
+{
+    prnt(SETUP_PLAUSIBLE_DENIABILITY);
+    // start display
+    if (settings.getDisplayInterface())
+    {
+        displayUI.setup();
+        displayUI.mode = displayUI.DISPLAY_MODE::PLAUSIBLE_DENIABILITY_INTRO;
+    }
+}
+
+void SetupDeauther()
+{
     // set mac for access point
     wifi_set_macaddr(SOFTAP_IF, settings.getMacAP());
 
     // start WiFi
     WiFi.mode(WIFI_OFF);
     wifi_set_opmode(STATION_MODE);
-    wifi_set_promiscuous_rx_cb([](uint8_t* buf, uint16_t len) {
+    wifi_set_promiscuous_rx_cb([](uint8_t *buf, uint16_t len) {
         scan.sniffer(buf, len);
     });
 
@@ -102,7 +134,8 @@ void setup() {
     wifi_set_macaddr(STATION_IF, settings.getMacSt());
 
     // start display
-    if (settings.getDisplayInterface()) {
+    if (settings.getDisplayInterface())
+    {
         displayUI.setup();
         displayUI.mode = displayUI.DISPLAY_MODE::INTRO;
     }
@@ -121,23 +154,28 @@ void setup() {
     // set channel
     setWifiChannel(settings.getChannel());
 
-    // load Wifi settings: SSID, password,...
-    #ifdef DEFAULT_SSID
-    if (settings.getSSID() == "pwned") settings.setSSID(DEFAULT_SSID);
-    #endif // ifdef DEFAULT_SSID
+// load Wifi settings: SSID, password,...
+#ifdef DEFAULT_SSID
+    if (settings.getSSID() == "pwned")
+        settings.setSSID(DEFAULT_SSID);
+#endif // ifdef DEFAULT_SSID
     loadWifiConfigDefaults();
 
     // dis/enable serial command interface
-    if (settings.getCLI()) {
+    if (settings.getCLI())
+    {
         cli.enable();
-    } else {
+    }
+    else
+    {
         prntln(SETUP_SERIAL_WARNING);
         Serial.flush();
         Serial.end();
     }
 
     // start access point/web interface
-    if (settings.getWebInterface()) startAP();
+    if (settings.getWebInterface())
+        startAP();
 
     // STARTED
     prntln(SETUP_STARTED);
@@ -149,26 +187,35 @@ void setup() {
     led.setup();
 }
 
-void loop() {
+void loop()
+{
+
     currentTime = millis();
-
-    led.update();    // update LED color
-    wifiUpdate();    // manage access point
-    attack.update(); // run attacks
-    displayUI.update();
-    cli.update();    // read and run serial input
-    scan.update();   // run scan
-    ssids.update();  // run random mode, if enabled
-
+    if (PLAUSIBLE_DENIABILITY_MODE)
+    {
+        displayUI.update(); 
+    }
+    else
+    {
+        led.update();    // update LED color
+        wifiUpdate();    // manage access point
+        attack.update(); // run attacks
+        displayUI.update();
+        cli.update();   // read and run serial input
+        scan.update();  // run scan
+        ssids.update(); // run random mode, if enabled
+    }
     // auto-save
-    if (settings.getAutosave() && (currentTime - autosaveTime > settings.getAutosaveTime())) {
+    if (settings.getAutosave() && (currentTime - autosaveTime > settings.getAutosaveTime()))
+    {
         autosaveTime = currentTime;
         names.save(false);
         ssids.save(false);
         settings.save(false);
     }
 
-    if (!booted) {
+    if (!booted)
+    {
         // reset boot counter
         EEPROM.write(0, 0);
         EEPROM.commit();

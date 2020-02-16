@@ -75,6 +75,7 @@ const char SETUP_SERIAL_WARNING[] PROGMEM = "Warning: Serial deactivated";
 const char SETUP_STARTED[] PROGMEM = "STARTED! \\o/";
 const char SETUP_COPYING[] PROGMEM = "Copying ";
 const char SETUP_PROGMEM_TO_SPIFFS[] PROGMEM = " from PROGMEM to SPIFFS...";
+const char SETUP_PLAUSIBLE_DENIABILITY[] PROGMEM = "Started in Wrist-Watch mode";
 
 // ===== SERIAL COMMAND LINE INTERFACE ===== //
 const char CLI_SCAN[] PROGMEM = "scan";                        // scan

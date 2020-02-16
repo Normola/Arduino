@@ -2,6 +2,7 @@
 
 // ===== adjustable ===== //
 void DisplayUI::configInit() {
+    prnt("DUI:configInit");
     // initialize display
     display.init();
 
@@ -23,10 +24,12 @@ void DisplayUI::configInit() {
 }
 
 void DisplayUI::configOn() {
+    prnt("DUI:configOn");
     display.displayOn();
 }
 
 void DisplayUI::configOff() {
+    prnt("DUI:configOff");
     display.displayOff();
 }
 
@@ -59,6 +62,7 @@ DisplayUI::~DisplayUI() {}
 
 
 void DisplayUI::setup() {
+    prnt("DUI:setup");
     configInit();
     setupButtons();
     buttonTime = currentTime;
@@ -455,7 +459,7 @@ void DisplayUI::setupLED() {
 
 void DisplayUI::update() {
     if (!enabled) return;
-
+    
     up->update();
     down->update();
     a->update();
@@ -680,6 +684,14 @@ void DisplayUI::draw() {
             }
             drawIntro();
             break;
+        
+        case DISPLAY_MODE::PLAUSIBLE_DENIABILITY_INTRO:
+            if (currentTime - startTime >= screenIntroTime) {
+                mode = DISPLAY_MODE::CLOCK;
+            }
+            drawPlausibleDeniabilityIntro();
+            break;
+        
         case DISPLAY_MODE::CLOCK:
             drawClock();
             break;
@@ -778,6 +790,16 @@ void DisplayUI::drawIntro() {
     drawString(3, center(str(D_INTRO_3), maxLen));
     drawString(4, center(settings.getVersion(), maxLen));
 }
+
+void DisplayUI::drawPlausibleDeniabilityIntro() {
+    prnt("Drawing PD Intro");
+    drawString(0, center(str(PD_INTRO_0), maxLen));
+    drawString(1, center(str(PD_INTRO_1), maxLen));
+    drawString(2, center(str(PD_INTRO_2), maxLen));
+    drawString(3, center(str(PD_INTRO_3), maxLen));
+    drawString(4, center(settings.getVersion(), maxLen));
+}
+
 
 void DisplayUI::drawClock() {
     String clockTime = String(clockHour);
