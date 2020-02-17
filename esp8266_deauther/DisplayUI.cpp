@@ -2,7 +2,6 @@
 
 // ===== adjustable ===== //
 void DisplayUI::configInit() {
-    prnt("DUI:configInit");
     // initialize display
     display.init();
 
@@ -24,12 +23,10 @@ void DisplayUI::configInit() {
 }
 
 void DisplayUI::configOn() {
-    prnt("DUI:configOn");
     display.displayOn();
 }
 
 void DisplayUI::configOff() {
-    prnt("DUI:configOff");
     display.displayOff();
 }
 
@@ -62,7 +59,6 @@ DisplayUI::~DisplayUI() {}
 
 
 void DisplayUI::setup() {
-    prnt("DUI:setup");
     configInit();
     setupButtons();
     buttonTime = currentTime;
@@ -687,6 +683,8 @@ void DisplayUI::draw() {
         
         case DISPLAY_MODE::PLAUSIBLE_DENIABILITY_INTRO:
             if (currentTime - startTime >= screenIntroTime) {
+                display.setFont(ArialMT_Plain_24);
+                display.setTextAlignment(TEXT_ALIGN_CENTER);
                 mode = DISPLAY_MODE::CLOCK;
             }
             drawPlausibleDeniabilityIntro();

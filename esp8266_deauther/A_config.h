@@ -58,9 +58,9 @@
 #define BUTTON_DOWN 13
 #define BUTTON_A 14
 
-// #define BUTTON_LEFT 10
-// #define BUTTON_RIGHT 11
-// #define BUTTON_B 15
+#define BUTTON_LEFT 10
+#define BUTTON_RIGHT 11
+#define BUTTON_B 15
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
     Uncomment the type of display you're using
