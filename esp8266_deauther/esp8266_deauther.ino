@@ -54,6 +54,7 @@ uint32_t autosaveTime = 0;
 uint32_t currentTime = 0;
 
 bool booted = false;
+bool setupRun = false;
 
 void setup()
 {
@@ -68,10 +69,12 @@ void setup()
 
     if (PLAUSIBLE_DENIABILITY_MODE)
     {
+        displayUI.PD_Mode = true;
         SetupWatch();
     }
     else
     {
+        displayUI.PD_Mode = false;
         SetupDeauther();
     }
 }
@@ -109,7 +112,7 @@ void LoadSettings()
 
 void SetupWatch()
 {
-    prnt(SETUP_PLAUSIBLE_DENIABILITY);
+    prntln(SETUP_PLAUSIBLE_DENIABILITY);
     // start display
     if (settings.getDisplayInterface())
     {
@@ -120,6 +123,7 @@ void SetupWatch()
 
 void SetupDeauther()
 {
+    setupRun = true;
     // set mac for access point
     wifi_set_macaddr(SOFTAP_IF, settings.getMacAP());
 
@@ -191,12 +195,17 @@ void loop()
 {
 
     currentTime = millis();
-    if (PLAUSIBLE_DENIABILITY_MODE)
+    if (displayUI.PD_Mode)
     {
         displayUI.update(); 
     }
     else
     {
+        if (!setupRun)
+        {
+            prntln("Setting up deauther!");
+            SetupDeauther();
+        }
         led.update();    // update LED color
         wifiUpdate();    // manage access point
         attack.update(); // run attacks

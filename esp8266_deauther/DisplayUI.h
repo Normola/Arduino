@@ -21,6 +21,8 @@ extern Stations     stations;
 extern Scan     scan;
 extern Attack   attack;
 extern uint32_t currentTime;
+extern uint32_t sequenceCount;
+extern bool PD_Mode;
 
 extern String leftRight(String a, String b, int len);
 extern String center(String a, int len);
@@ -39,6 +41,11 @@ const char PD_INTRO_1[] PROGMEM = "GeekWatch";
 const char PD_INTRO_2[] PROGMEM = "by @Normola";
 const char PD_INTRO_3[] PROGMEM = "";
 
+const bool SHORT = false;
+const bool LONG = true;
+
+const bool PD_UNLOCK_SEQUENCE[] = {SHORT, SHORT, SHORT, LONG};
+
 // fallback for the buttons
 #ifndef BUTTON_UP
   #define BUTTON_UP 255
@@ -55,6 +62,10 @@ const char PD_INTRO_3[] PROGMEM = "";
 #ifndef BUTTON_B
   #define BUTTON_B 255
 #endif // ifndef BUTTON_B
+
+#ifndef BUTTON_LEFT
+  #define BUTTON_LEFT 255
+#endif BUTTON_LEFT
 
 struct MenuNode {
     std::function<String()>getStr; // function used to create the displayed string
@@ -75,11 +86,13 @@ class DisplayUI {
 
         uint8_t mode      = DISPLAY_MODE::MENU;
         bool highlightLED = false;
+        bool PD_Mode = false;
 
         Button* up   = NULL;
         Button* down = NULL;
         Button* a    = NULL;
         Button* b    = NULL;
+        Button* left = NULL;
 
         // ===== adjustable ===== //
         DEAUTHER_DISPLAY // see config.h
@@ -123,6 +136,7 @@ class DisplayUI {
         uint32_t drawTime      = 0; // last time a frame was drawn
         uint32_t startTime     = 0; // when the screen was enabled
         uint32_t buttonTime    = 0; // last time a button was pressed
+        uint32_t sequenceTime  = 0; // last time an unlock sequence button was pressed
 
         bool enabled = false;       // display enabled
         bool tempOff = false;
@@ -179,12 +193,14 @@ class DisplayUI {
         // fake clock
         void drawClock();
         void setTime(int h, int m, int s);
+        void doUnlock();
 
         int clockHour   = 6;
         int clockMinute = 0;
         int clockSecond = 0;
 
         uint32_t clockTime = 0;
+        uint32_t sequenceCount = 0;
 };
 
 // ===== FONT ===== //

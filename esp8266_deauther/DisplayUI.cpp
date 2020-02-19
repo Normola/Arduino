@@ -500,7 +500,8 @@ void DisplayUI::setupButtons() {
     down = new ButtonPullup(BUTTON_DOWN);
     a    = new ButtonPullup(BUTTON_A);
     b    = new ButtonPullup(BUTTON_B);
-
+    left = new ButtonPullup(BUTTON_LEFT);
+    
     // === BUTTON UP === //
     up->setOnClicked([this]() {
         scrollCounter = 0;
@@ -570,6 +571,22 @@ void DisplayUI::setupButtons() {
         }
     }, buttonDelay);
 
+    left->setOnClicked([this]() {
+        scrollCounter = 0;
+        scrollTime = currentTime;
+        buttonTime = currentTime;
+        prntln("Magic!");
+        if (!tempOff) {
+            switch (mode)
+            {
+            case DISPLAY_MODE::MENU:
+                break;
+            
+
+            }
+        }
+    });
+
     // === BUTTON A === //
     a->setOnClicked([this]() {
         scrollCounter = 0;
@@ -591,9 +608,42 @@ void DisplayUI::setupButtons() {
                 break;
 
             case DISPLAY_MODE::CLOCK:
-                mode = DISPLAY_MODE::MENU;
-                display.setFont(DejaVu_Sans_Mono_12);
-                display.setTextAlignment(TEXT_ALIGN_LEFT);
+                if (PD_Mode)
+                {
+                    if (sequenceTime < currentTime - 1000)
+                    {
+                        sequenceCount = 0;
+                        prntln("Doink");
+                    }
+                    else
+                    {
+                        if (PD_UNLOCK_SEQUENCE[sequenceCount] == SHORT)
+                        {
+                            sequenceCount++;
+                            if (sequenceCount > sizeof(PD_UNLOCK_SEQUENCE))
+                            {
+                                doUnlock();
+                            }
+                        }
+                        else
+                        {
+                            sequenceCount = 0;
+                        }
+                        
+                    }
+                    
+                    prnt("Unlock Sequence: ");
+                    prntln(int(sequenceCount));
+                    sequenceTime = currentTime;
+
+
+                }
+                else
+                {
+                    mode = DISPLAY_MODE::MENU;
+                    display.setFont(DejaVu_Sans_Mono_12);
+                    display.setTextAlignment(TEXT_ALIGN_LEFT);
+                }
                 break;
             }
         }
@@ -604,10 +654,48 @@ void DisplayUI::setupButtons() {
         scrollTime = currentTime;
         buttonTime    = currentTime;
         if (!tempOff) {
-            if (mode == DISPLAY_MODE::MENU) {
-                if (currentMenu->list->get(currentMenu->selected).hold) {
+            switch(mode)
+            {
+            case DISPLAY_MODE::MENU:
+                if (currentMenu->list->get(currentMenu->selected).hold) 
+                {
                     currentMenu->list->get(currentMenu->selected).hold();
                 }
+                break;
+            
+            case DISPLAY_MODE::CLOCK:
+                if (PD_Mode)
+                {
+
+
+                    if (PD_UNLOCK_SEQUENCE[sequenceCount] == LONG)
+                    {
+                        sequenceCount++;
+                        prntln("Correct long!");
+                        if (sequenceCount >=sizeof(PD_UNLOCK_SEQUENCE))
+                        {
+                            DisplayUI::doUnlock();
+                        }
+                    }
+                    else
+                    {
+                        sequenceCount = 0;
+                    }
+
+                    prnt("Unlock Sequence: ");
+                    prntln(int(sequenceCount));
+
+
+                    if (sequenceTime < currentTime - 1000)
+                    {
+                        sequenceCount = 0;
+                        prntln("Doinkiee");
+                    }
+
+                    sequenceTime = currentTime;
+                }
+
+                break;
             }
         }
     }, 800);
@@ -630,13 +718,29 @@ void DisplayUI::setupButtons() {
                 break;
 
             case DISPLAY_MODE::CLOCK:
-                mode = DISPLAY_MODE::MENU;
-                display.setFont(DejaVu_Sans_Mono_12);
-                display.setTextAlignment(TEXT_ALIGN_LEFT);
+                if (PD_Mode)
+                {
+
+                }
+                else
+                {
+                    mode = DISPLAY_MODE::MENU;
+                    display.setFont(DejaVu_Sans_Mono_12);
+                    display.setTextAlignment(TEXT_ALIGN_LEFT);
+                }
                 break;
             }
         }
     });
+}
+
+void DisplayUI::doUnlock() {
+    prntln("Unlocking!");
+    display.setFont(DejaVu_Sans_Mono_12);
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
+    startTime = 0;
+    PD_Mode = false;
+    DisplayUI::mode = DISPLAY_MODE::INTRO;
 }
 
 String DisplayUI::getChannel() {
@@ -704,7 +808,9 @@ void DisplayUI::drawButtonTest() {
     drawString(1, str(D_DOWN) + b2s(down->read()));
     drawString(2, str(D_A) + b2s(a->read()));
     drawString(3, str(D_B) + b2s(b->read()));
+    drawString(4, str(D_LEFT) + b2s(left->read()));
 }
+
 
 void DisplayUI::drawMenu() {
     String tmp;
@@ -790,7 +896,6 @@ void DisplayUI::drawIntro() {
 }
 
 void DisplayUI::drawPlausibleDeniabilityIntro() {
-    prnt("Drawing PD Intro");
     drawString(0, center(str(PD_INTRO_0), maxLen));
     drawString(1, center(str(PD_INTRO_1), maxLen));
     drawString(2, center(str(PD_INTRO_2), maxLen));

@@ -8,6 +8,8 @@
 // ===================== LED CONFIG ==================== //
 #define NEOPIXEL_LED
 #define HIGHLIGHT_LED 16
+#define PLAUSIBLE_DENIABILITY_MODE false
+#define DEFAULT_SSID "MI5IceCreamVan"
 
 #define LED_MODE_BRIGHTNESS 10 // brightness of LED modes 
 
