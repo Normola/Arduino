@@ -23,7 +23,7 @@
 #define BUTTON_UP 12
 #define BUTTON_DOWN 13
 #define BUTTON_A 14
-#define BUTTON_RIGHT 0
+#define BUTTON_B 0
 #define BUTTON_LEFT 1
 
 // #define BUTTON_A 1
