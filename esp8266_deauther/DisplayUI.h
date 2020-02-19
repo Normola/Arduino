@@ -65,7 +65,11 @@ const bool PD_UNLOCK_SEQUENCE[] = {SHORT, SHORT, SHORT, LONG};
 
 #ifndef BUTTON_LEFT
   #define BUTTON_LEFT 255
-#endif BUTTON_LEFT
+#endif // ifndef BUTTON_LEFT
+
+#ifndef BUTTON_RIGHT
+  #define BUTTON_RIGHT 255
+#endif // ifndef BUTTON_RIGHT
 
 struct MenuNode {
     std::function<String()>getStr; // function used to create the displayed string
